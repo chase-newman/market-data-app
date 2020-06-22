@@ -1,3 +1,16 @@
 .Fab {
     font-size: 1.2em;
 }
+.Button {
+    background: none !important;
+    border: none !important;
+    cursor: pointer;
+    color: red !important;
+}
+
+.DateDisplay {
+    padding-right: 10px;
+}
+.UserDisplay {
+    color: rgba(23,162,184,1) !important;
+}

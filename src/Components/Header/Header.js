@@ -6,6 +6,9 @@ import classes from './Header.module.css';
 const header= (props) => {
   
         let iconStyle = `fab fa-ethereum ${classes.Fab}`
+        let btnStyle = `nav-link ${classes.Button}`
+         
+        
         
         return (
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -21,17 +24,27 @@ const header= (props) => {
                   <Link className="nav-link" to="/login">Login<span className="sr-only">(current)</span></Link>
                 </li> : 
                  <li className="nav-item active">
-                  <a 
-                    className="nav-link"
-                    style={{cursor: "pointer"}}
-                    onClick={props.logoutHandler}>Logout<span className="sr-only">(current)</span></a>
+                  <button 
+                    className={btnStyle}
+                    onClick={props.logoutHandler}>Logout<span className="sr-only">(current)</span></button>
                 </li>
                 }
                 <li className="nav-item">
                   <Link className="nav-link" to="/stock-data">Stock Data</Link>
                 </li>
               </ul>
-             
+        
+              <div className="navbar-text">
+                {!props.auth ? 
+                <span>{props.date}</span> : 
+                <div>
+                  <span className={classes.DateDisplay}>{props.date}</span> 
+                  <span>
+                    <strong className={classes.UserDisplay}>Hello, {props.user}</strong>
+                  </span>
+                  </div>}
+              </div> 
+
             </div>
           </nav>
         );

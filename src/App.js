@@ -2,26 +2,48 @@ import React, {Component} from 'react';
 import { Route, withRouter } from 'react-router-dom';
 import Aux from './hoc/Aux';
 import Header from './Components/Header/Header';
+import LandingPage from './Components/LandingPage/LandingPage';
 import Login from './Components/Login/Login';
 import Main from './Components/Main/Main';
 import axios from 'axios';
-import classes from './App.module.css';
+
 
 const API_KEY = "1D24JWD6HONH93GD"
 const FIREBASE_KEY = "AIzaSyDEhTxapjqufs8ulp4bq-qWEjFe2zBZ1zY"
 
 class App extends Component {
   state = {
+      date: "",
       stockSymbol: null,
       dateLabels: null,
       prices: null,
       email: "",
       password: "",
-      auth: null
+      auth: null,
+      user: null,
+      imgUrl: "./assets/stock-data-screenshot.png"
   }
   
   componentDidMount() {
-    console.log(this.props)
+    let date = new Date();
+    let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    let month = months[date.getMonth()];
+    let year = date.getFullYear();
+    let day = date.getDate();
+    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    let dayOfWeek = days[date.getDay()];
+    date = `${dayOfWeek} - ${month} ${day}, ${year}`;
+    this.setState({date});
+    
+    if(localStorage.auth) {
+      console.log("User Logged In");
+      console.log(localStorage.auth);
+      this.setState({auth: localStorage.auth});
+      this.setState({user: localStorage.user});
+    } else {
+      console.log("No User");
+    }
+
     if(this.state.stockSymbol === null) {
       axios({
       method: "get",
@@ -124,11 +146,15 @@ class App extends Component {
           this.setState({
               email: "",
               password: "",
-              auth: response.data.idToken
+              auth: response.data.idToken,
+              user: response.data.email
           });
+           localStorage.setItem("auth", response.data.idToken);
+           localStorage.setItem("user", response.data.email);
            this.props.history.push("/stock-data");
       }).catch(err => {
           console.log(err);
+          alert("Incorrect username and password please try again");
       });
     }
   
@@ -146,16 +172,21 @@ class App extends Component {
           this.setState({
               email: "",
               password: "",
-              auth: response.data.idToken
+              auth: response.data.idToken,
+              user: response.data.email
           });
+          localStorage.setItem("auth", response.data.idToken);
+          localStorage.setItem("user", response.data.email);
           this.props.history.push("/stock-data");
       }).catch(err => {
           console.log(err);
+          alert("Incorrect username and password please try again");
       });
     }
 
     logoutHandler = () => {
       this.setState({auth: null});
+      localStorage.removeItem("auth");
     }
     
     onChangeEmailHandler = (email) => { 
@@ -173,12 +204,19 @@ class App extends Component {
   render() {
     return (
       <Aux>
-        <Header 
+        <Header
+          date={this.state.date}
           clicked={this.searchHandler}
           logoutHandler={this.logoutHandler}
           auth={this.state.auth}
+          user={this.state.user}
             />
         <div className="container-fluid">
+          <Route path="/" exact render={() => {
+            return <LandingPage
+                      auth={this.state.auth}
+                      imgUrl={this.state.imgUrl}/>
+          }}/>
           <Route path="/stock-data" render={() => {
             return <Main
                       stockSymbol={this.state.stockSymbol}

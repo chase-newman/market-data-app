@@ -1,0 +1,17 @@
+.Row {
+    margin-top: 100px;
+}
+.ImgCol {
+    border-right: 2px solid black;
+}
+@media only screen and (max-width: 573px) {
+    .ImgCol {
+        border-right: none;
+    }
+    .ImgCol img {
+        border-bottom: 2px solid black;
+    }
+}
+.LinkCol {
+    padding-top: 50px;
+}

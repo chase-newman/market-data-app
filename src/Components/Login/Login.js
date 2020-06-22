@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router-dom';
 import classes from './Login.module.css';
 
 class Login extends Component {
@@ -47,7 +48,7 @@ class Login extends Component {
                         type="password"
                         name="password"
                         className="form-control" 
-                        placeholder="password..."
+                        placeholder="password (6 characters min. for sign up)..."
                         onChange={event => {
                             this.setState({
                                 password: event.target.value
@@ -63,6 +64,10 @@ class Login extends Component {
                         onClick={this.props.signUpHandler}>Sign Up</button>
                 </div> : 
                 <div className="col-lg-6 col-md-8 col-sm-10">
+                    <h1>You Are Signed In...</h1>
+                    <Link 
+                        className="btn btn-block btn-outline-info"
+                        to="/stock-data">Continue to Stock Data</Link>
                     <div 
                         className="btn btn-block btn-outline-danger"
                         onClick={this.props.logoutHandler}>Logout</div>
