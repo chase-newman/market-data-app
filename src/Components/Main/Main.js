@@ -14,14 +14,14 @@ class Main extends Component {
     render() {
         
     let rowStyle = `row ${classes.Row}`
-    let searchColStyle = `col-sm-3 ${classes.Search}`
+    let searchColStyle = `col-lg-3 col-md-4 col-sm-6  ${classes.Search}`
     let currentPrice;
     if(this.props.prices) {
         currentPrice = this.props.prices[this.props.prices.length - 1];
     }
         return(
           <div className={rowStyle}>
-            <div className="col-lg-9 col-md-9 col-sm-9">
+            <div className="col-lg-9 col-md-12 col-sm-12">
                 <h1>{this.props.stockSymbol} <span>${currentPrice}</span></h1>
                     <Line
                       data={{
@@ -31,7 +31,7 @@ class Main extends Component {
                               label: 'Closing Price',
                               lineTension: 0,
                               fill: true,
-                              backgroundColor: 'rgba(75,192,192,1)',
+                              backgroundColor: 'rgba(23,162,184,1)',
                               borderColor: 'rgba(0,0,0,1)',
                               borderWidth: 2,
                               data: this.props.prices
@@ -53,16 +53,22 @@ class Main extends Component {
                       }}
                     />
                 </div>
-                <div className={searchColStyle}>
+                {this.props.auth ? <div className={searchColStyle}>
                     <input 
                         type="text" 
                         className="form-control" 
                         placeholder="Ticker Symbol..."
                         onChange={this.onChangeHandler}/>
                     <button
-                        onClick={() => this.props.clicked(this.state.inputText)}
+                        onClick={() => {
+                          return this.props.clicked(this.state.inputText)}
+                        }
                         className="btn btn-block btn-outline-success">Search</button>
-                </div>
+                </div> : 
+                  <div className={searchColStyle}>
+                    <p>Please Sign Up or Login to Search New Stock Data</p>
+                  </div>
+                }
           </div>
         );
     }
