@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import classes from './Header.module.css';
+import { connect } from 'react-redux';
+import * as actionCreators from '../../store/actions';
 
 
 const header= (props) => {
   
         let iconStyle = `fab fa-ethereum ${classes.Fab}`
         let btnStyle = `nav-link ${classes.Button}`
-         
-        
         
         return (
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -26,7 +26,7 @@ const header= (props) => {
                  <li className="nav-item active">
                   <button 
                     className={btnStyle}
-                    onClick={props.logoutHandler}>Logout<span className="sr-only">(current)</span></button>
+                    onClick={() => props.reduxLogoutHandler(props.auth, props.user)}>Logout<span className="sr-only">(current)</span></button>
                 </li>
                 }
                 <li className="nav-item">
@@ -44,10 +44,23 @@ const header= (props) => {
                   </span>
                   </div>}
               </div> 
-
             </div>
           </nav>
         );
       };
       
-export default header;
+      
+const mapStateToProps = state => {
+    return {
+      auth: state.auth,
+      user: state.user
+    }
+}
+      
+const mapDispatchToProps = dispatch => {
+    return {
+      reduxLogoutHandler: (auth, user) => dispatch(actionCreators.logout(auth, user))
+    }
+}
+      
+export default connect(mapStateToProps, mapDispatchToProps)(header);

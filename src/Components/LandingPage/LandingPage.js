@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import classes from './LandingPage.module.css';
+import { connect } from 'react-redux';
 
 const landingPage = (props) => {
     
@@ -31,6 +32,12 @@ const landingPage = (props) => {
 };
     
 
+const mapStateToProps = state => {
+    return {
+        imgUrl: state.imgUrl,
+        auth: state.auth
+    }
+}
 
 
-export default landingPage;
+export default connect(mapStateToProps)(landingPage);

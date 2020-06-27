@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Line} from 'react-chartjs-2';
+import { connect } from 'react-redux';
 import classes from './Main.module.css';
 
 class Main extends Component {
@@ -57,7 +58,7 @@ class Main extends Component {
                     <input 
                         type="text" 
                         className="form-control" 
-                        placeholder="Ticker Symbol..."
+                        placeholder="Ticker Symbol (ex. AAPL, TSLA, FB)"
                         onChange={this.onChangeHandler}/>
                     <button
                         onClick={() => {
@@ -74,4 +75,11 @@ class Main extends Component {
     }
 }
 
-export default Main;
+
+const mapStateToProps = state => {
+  return {
+    auth: state.auth
+  }
+}
+
+export default connect(mapStateToProps)(Main);

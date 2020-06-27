@@ -1,15 +1,17 @@
 import React, {Component} from 'react';
 import { Route, withRouter } from 'react-router-dom';
 import Aux from './hoc/Aux';
+import { connect } from 'react-redux';
 import Header from './Components/Header/Header';
 import LandingPage from './Components/LandingPage/LandingPage';
 import Login from './Components/Login/Login';
 import Main from './Components/Main/Main';
 import axios from 'axios';
+import * as actionCreators from './store/actions';
 
 
 const API_KEY = "1D24JWD6HONH93GD"
-const FIREBASE_KEY = "AIzaSyDEhTxapjqufs8ulp4bq-qWEjFe2zBZ1zY"
+// const FIREBASE_KEY = "AIzaSyDEhTxapjqufs8ulp4bq-qWEjFe2zBZ1zY"
 
 class App extends Component {
   state = {
@@ -36,10 +38,10 @@ class App extends Component {
     this.setState({date});
     
     if(localStorage.auth) {
-      console.log("User Logged In");
-      console.log(localStorage.auth);
       this.setState({auth: localStorage.auth});
       this.setState({user: localStorage.user});
+      //lets run a function here that will set the auth state in redux to true
+      this.props.checkAuth(localStorage.auth, localStorage.user)
     } else {
       console.log("No User");
     }
@@ -89,7 +91,6 @@ class App extends Component {
       method: "get",
       url: `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${inputValue}&apikey=${API_KEY}`
     }).then(response => {
-      //Need to implement Error Handling if the length of the array returned = 0, respond with error on the screen
       let data = Object.values(response.data)
       let meta = data[0];
       let metaArr = [];
@@ -113,132 +114,59 @@ class App extends Component {
       });
       let finalClosePrices = [];
       revisedClosePrices.forEach(el => {
-        finalClosePrices.push(parseFloat(el[3]));
+        finalClosePrices.push(parseFloat(el[3]).toFixed(2));
       });
-      this.setState({
-        stockSymbol: meta,
-        dateLabels: dates,
-        prices: finalClosePrices
-      });
+      console.log(finalClosePrices.length);
+      if(finalClosePrices.length > 0) {
+      finalClosePrices = finalClosePrices.reverse();
+        this.setState({
+          stockSymbol: meta,
+          dateLabels: dates,
+          prices: finalClosePrices
+        });
+      }
+      else {
+        alert("Invalid Ticker Symbol. Please Try Again...");
+      }  
     }).catch(err => {
-        console.log(err)
-        alert("Ticker Symbol Does Not Exist");
+        console.log(err);
     });
   }
   
-  onChangeHandler = event => {
-      this.setState({
-          [event.target.name]: event.target.value
-        })
-      }
-    
-  loginHandler = () => {
-      axios({
-        method: "post",
-        url: `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_KEY}`,
-        data: {
-          email: this.state.email,
-          password: this.state.password,
-          returnSecureToken: true
-        }
-      }).then(response => {
-          console.log(response);
-          this.setState({
-              email: "",
-              password: "",
-              auth: response.data.idToken,
-              user: response.data.email
-          });
-           localStorage.setItem("auth", response.data.idToken);
-           localStorage.setItem("user", response.data.email);
-           this.props.history.push("/stock-data");
-      }).catch(err => {
-          console.log(err);
-          alert("Incorrect username and password please try again");
-      });
-    }
-  
-  signUpHandler = () => {
-      axios({
-        method: "post",
-        url: `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_KEY}`,
-        data: {
-          email: this.state.email,
-          password: this.state.password,
-          returnSecureToken: true
-        }
-      }).then(response => {
-          console.log(response);
-          this.setState({
-              email: "",
-              password: "",
-              auth: response.data.idToken,
-              user: response.data.email
-          });
-          localStorage.setItem("auth", response.data.idToken);
-          localStorage.setItem("user", response.data.email);
-          this.props.history.push("/stock-data");
-      }).catch(err => {
-          console.log(err);
-          alert("Incorrect username and password please try again");
-      });
-    }
-
-    logoutHandler = () => {
-      this.setState({auth: null});
-      localStorage.removeItem("auth");
-    }
-    
-    onChangeEmailHandler = (email) => { 
-      this.setState({
-        email: email
-      })
-    }
-    
-    onChangePasswordHandler = (password) => { 
-      this.setState({
-        password: password
-      })
-    }
   
   render() {
     return (
       <Aux>
-        <Header
-          date={this.state.date}
-          clicked={this.searchHandler}
-          logoutHandler={this.logoutHandler}
-          auth={this.state.auth}
-          user={this.state.user}
-            />
+        <Header date={this.state.date} />
         <div className="container-fluid">
-          <Route path="/" exact render={() => {
-            return <LandingPage
-                      auth={this.state.auth}
-                      imgUrl={this.state.imgUrl}/>
-          }}/>
+          <Route path="/" exact component={LandingPage} />
           <Route path="/stock-data" render={() => {
             return <Main
                       stockSymbol={this.state.stockSymbol}
                       dates={this.state.dateLabels}
                       prices={this.state.prices}
                       clicked={this.searchHandler}
-                      auth={this.state.auth}/>
+                      />
           }} />
-        <Route path="/login" render={() => {
-            return <Login 
-                      onChangeEmail={this.onChangeEmailHandler}
-                      onChangePassword={this.onChangePasswordHandler}
-                      loginHandler={this.loginHandler}
-                      signUpHandler={this.signUpHandler}
-                      auth={this.state.auth}
-                      logoutHandler={this.logoutHandler}/>
-        }} />
+        <Route path="/login" component={Login} />
         </div>
       </Aux>
     );
   }
-  
 }
 
-export default withRouter(App);
+const mapStateToProps = state => {
+    return {
+      email: state.email,
+      password: state.password
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    checkAuth: (auth, user) => dispatch(actionCreators.checkAuth(auth, user))
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
