@@ -88,6 +88,8 @@ export const signUp = (email, password) => {
         }
       }).then(response => {
           console.log(response);
+          localStorage.setItem("auth", response.data.idToken);
+          localStorage.setItem("user", response.data.email);
           dispatch(postSignUpData(response.data.idToken, response.data.email));
       }).catch(err => {
           alert(err);
