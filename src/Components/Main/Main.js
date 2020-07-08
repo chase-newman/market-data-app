@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Line} from 'react-chartjs-2';
 import { connect } from 'react-redux';
+import Aux from '../../hoc/Aux';
+import Modal from '../UI/Modal/Modal';
 import classes from './Main.module.css';
 
 class Main extends Component {
@@ -21,56 +23,63 @@ class Main extends Component {
         currentPrice = this.props.prices[this.props.prices.length - 1];
     }
         return(
-          <div className={rowStyle}>
-            <div className="col-lg-9 col-md-12 col-sm-12">
-                <h1>{this.props.stockSymbol} <span>${currentPrice}</span></h1>
-                    <Line
-                      data={{
-                          labels: this.props.dates,
-                          datasets: [
-                            {
-                              label: 'Closing Price',
-                              lineTension: 0,
-                              fill: true,
-                              backgroundColor: 'rgba(23,162,184,1)',
-                              borderColor: 'rgba(0,0,0,1)',
-                              borderWidth: 2,
-                              data: this.props.prices
-                            }
-                        ]
-                      }}
-                      options={{
-                        title:{
-                          display:false,
-                          text: null,
-                          fontSize:20
-                        },
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        legend:{
-                          display: false,
-                          position:'right'
-                        }
-                      }}
-                    />
-                </div>
-                {this.props.auth ? <div className={searchColStyle}>
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="Ticker Symbol (ex. AAPL, TSLA, FB)"
-                        onChange={this.onChangeHandler}/>
-                    <button
-                        onClick={() => {
-                          return this.props.clicked(this.state.inputText)}
-                        }
-                        className="btn btn-block btn-outline-success">Search</button>
-                </div> : 
-                  <div className={searchColStyle}>
-                    <p>Please Sign Up or Login to Search New Stock Data</p>
+          <Aux>
+            {this.props.error ? <Modal /> : null}
+            <div className={rowStyle}>
+              <div className="col-lg-9 col-md-12 col-sm-12">
+                  <h1>{this.props.stockSymbol} <span>${currentPrice}</span></h1>
+                      <Line
+                        data={{
+                            labels: this.props.dates,
+                            datasets: [
+                              {
+                                label: 'Closing Price',
+                                lineTension: 0,
+                                fill: true,
+                                backgroundColor: 'rgba(23,162,184,1)',
+                                borderColor: 'rgba(0,0,0,1)',
+                                borderWidth: 2,
+                                data: this.props.prices
+                              }
+                          ]
+                        }}
+                        options={{
+                          title:{
+                            display:false,
+                            text: null,
+                            fontSize:20
+                          },
+                          responsive: true,
+                          maintainAspectRatio: true,
+                          legend:{
+                            display: false,
+                            position:'right'
+                          }
+                        }}
+                      />
                   </div>
-                }
-          </div>
+                  {this.props.auth ? <div className={searchColStyle}>
+                      <input 
+                          type="text" 
+                          className="form-control" 
+                          placeholder="Ticker Symbol (ex. AAPL, TSLA, FB)"
+                          onChange={this.onChangeHandler}/>
+                      <button
+                          onClick={() => {
+                            return this.props.clicked(this.state.inputText)}
+                          }
+                          className="btn btn-block btn-outline-success">Search</button>
+                      <button 
+                        style={{marginTop: "0"}}
+                        className="btn btn-block btn-outline-info"
+                        onClick={this.props.randomStockSearch}>Random Stock</button>
+                  </div> : 
+                    <div className={searchColStyle}>
+                      <p>Please Sign Up or Login to Search New Stock Data</p>
+                    </div>
+                  }
+            </div>
+          </Aux>
         );
     }
 }
@@ -78,7 +87,8 @@ class Main extends Component {
 
 const mapStateToProps = state => {
   return {
-    auth: state.auth
+    auth: state.auth,
+    error: state.error
   }
 }
 

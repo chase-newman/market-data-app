@@ -6,6 +6,11 @@ export const LOGIN = "LOGIN";
 export const SIGN_UP = "SIGN_UP";
 export const LOGOUT = "LOGOUT";
 export const CHECK_AUTH = "CHECK_AUTH";
+export const MODAL_CLOSE = "MODAL_CLOSE";
+export const AUTH_ERROR = "AUTH_ERROR";
+export const TICKER_ERROR = "TICKER_ERROR";
+export const NETWORK_ERROR = "NETWORK_ERROR";
+
 const FIREBASE_KEY = "AIzaSyDEhTxapjqufs8ulp4bq-qWEjFe2zBZ1zY"
 
 
@@ -50,8 +55,10 @@ export const postSignUpData = (idToken, email) => {
     }
 }
 
-export const error = () => {
-    return;
+export const authError = () => {
+    return {
+        type: AUTH_ERROR
+    }
 }
 
 export const login = (email, password) => {
@@ -70,8 +77,7 @@ export const login = (email, password) => {
           localStorage.setItem("user", response.data.email);
           dispatch(postLoginData(response.data.idToken, response.data.email));
       }).catch(err => {
-          alert(err);
-          dispatch(error);
+          dispatch(authError());
       });
     }
 }
@@ -92,8 +98,7 @@ export const signUp = (email, password) => {
           localStorage.setItem("user", response.data.email);
           dispatch(postSignUpData(response.data.idToken, response.data.email));
       }).catch(err => {
-          alert(err);
-          dispatch(error);
+          dispatch(authError());
       });
     }
 }
@@ -103,5 +108,23 @@ export const checkAuth = (auth, user) => {
         type: CHECK_AUTH,
         auth: auth,
         user: user
+    }
+}
+
+export const modalClose = () => {
+    return {
+        type: MODAL_CLOSE
+    }
+}
+
+export const tickerError = () => {
+    return {
+        type: TICKER_ERROR
+    }
+}
+
+export const networkError = () => {
+    return {
+        type: NETWORK_ERROR   
     }
 }

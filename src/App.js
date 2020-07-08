@@ -23,7 +23,8 @@ class App extends Component {
       password: "",
       auth: null,
       user: null,
-      imgUrl: "./assets/stock-data-screenshot.png"
+      imgUrl: "./assets/stock-data-screenshot.png",
+      randomTickerArr: ["AAPL", "FB", "NFLX", "TWTR", "TSLA", "MSFT", "DIS", "BABA", "RUN"]
   }
   
   componentDidMount() {
@@ -126,10 +127,65 @@ class App extends Component {
         });
       }
       else {
-        alert("Invalid Ticker Symbol. Please Try Again...");
+        // alert("Invalid Ticker Symbol. Please Try Again...");
+        this.props.onTickerError();
       }  
     }).catch(err => {
         console.log(err);
+        this.props.onTickerError();
+    });
+  }
+  
+  
+    randomStockHandler = () => {
+    let num = Math.floor(Math.random() * (this.state.randomTickerArr.length - 1));
+    let randStock = this.state.randomTickerArr[num]
+    console.log("[num]: " + num + "[stock]" + randStock)
+     axios({
+      method: "get",
+      url: `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${randStock}&apikey=${API_KEY}`
+    }).then(response => {
+      let data = Object.values(response.data)
+      let meta = data[0];
+      let metaArr = [];
+      for(let key in meta) {
+        metaArr.push(meta[key])
+      }
+      meta = metaArr[1];
+      console.log("meta: " + meta);
+      let priceData = data[1];
+      let dates = [];
+      let closePrices = [];
+      for(let dateLabel in priceData) {
+        dates.push(dateLabel);
+        closePrices.push(priceData[dateLabel]);
+      }
+      dates = dates.splice(0,30).reverse();
+      closePrices = closePrices.splice(0,30);
+      let revisedClosePrices = [];
+      closePrices.forEach(el => {
+        revisedClosePrices.push(Object.values(el));
+      });
+      let finalClosePrices = [];
+      revisedClosePrices.forEach(el => {
+        finalClosePrices.push(parseFloat(el[3]).toFixed(2));
+      });
+      console.log(finalClosePrices.length);
+      if(finalClosePrices.length > 0) {
+      finalClosePrices = finalClosePrices.reverse();
+        this.setState({
+          stockSymbol: meta,
+          dateLabels: dates,
+          prices: finalClosePrices
+        });
+      }
+      else {
+        // alert("Invalid Ticker Symbol. Please Try Again...");
+        this.props.onNetworkError();
+      }  
+    }).catch(err => {
+        console.log(err);
+        this.props.onTickerError();
     });
   }
   
@@ -146,6 +202,7 @@ class App extends Component {
                       dates={this.state.dateLabels}
                       prices={this.state.prices}
                       clicked={this.searchHandler}
+                      randomStockSearch={this.randomStockHandler}
                       />
           }} />
         <Route path="/login" component={Login} />
@@ -164,7 +221,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    checkAuth: (auth, user) => dispatch(actionCreators.checkAuth(auth, user))
+    checkAuth: (auth, user) => dispatch(actionCreators.checkAuth(auth, user)),
+    onTickerError: () => dispatch(actionCreators.tickerError()),
+    onNetworkError: () => dispatch(actionCreators.networkError())
   }
 }
 
